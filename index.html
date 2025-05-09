@@ -363,8 +363,8 @@
                                 <input type="text" id="model" name="model" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label for="manufacturer" class="block text-sm font-medium text-gray-700 mb-1">Fabricante</label>
-                                <input type="text" id="manufacturer" name="manufacturer" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label for="unitMeasure" class="block text-sm font-medium text-gray-700 mb-1">Unidad de Medida</label>
+                                <input type="text" id="unitMeasure" name="unitMeasure" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
                                 <label for="serial" class="block text-sm font-medium text-gray-700 mb-1">Serie</label>
@@ -375,16 +375,20 @@
                                 <input type="text" id="origin" name="origin" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label for="unitMeasure" class="block text-sm font-medium text-gray-700 mb-1">Unidad de Medida</label>
-                                <input type="text" id="unitMeasure" name="unitMeasure" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label for="quantityUnits" class="block text-sm font-medium text-gray-700 mb-1">Cantidad de Unidades</label>
-                                <input type="number" id="quantityUnits" name="quantityUnits" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label for="numberPackages" class="block text-sm font-medium text-gray-700 mb-1">Numeración de Bultos</label>
+                                <input type="text" id="numberPackages" name="numberPackages" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
                                 <label for="quantityPackages" class="block text-sm font-medium text-gray-700 mb-1">Cantidad de Bultos</label>
                                 <input type="number" id="quantityPackages" name="quantityPackages" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+			     <div>
+                                <label for="quantityUnits" class="block text-sm font-medium text-gray-700 mb-1">Cantidad de Unidades</label>
+                                <input type="number" id="quantityUnits" name="quantityUnits" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="packagingCondition" class="block text-sm font-medium text-gray-700 mb-1">Estado de Mercancía (Nueva, Usada, Otros)</label>
+                                <input type="text" id="packagingcondition" name="packagingcondition" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div class="md:col-span-2">
                                 <label for="observation" class="block text-sm font-medium text-gray-700 mb-1">Observación</label>
@@ -400,7 +404,17 @@
                             <label class="custom-checkbox">
                                 <input type="checkbox" id="isExcess" name="isExcess">
                                 <span class="checkmark"></span>
-                                <span class="text-sm text-gray-700">Se encontró excedente</span>
+                                <span class="text-sm text-gray-700">Notificar excedente</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="isMissing" name="isMissing">
+                                <span class="checkmark"></span>
+                                <span class="text-sm text-gray-700">Notificar faltante</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="isFault" name="isFault">
+                                <span class="checkmark"></span>
+                                <span class="text-sm text-gray-700">Notificar Avería</span>
                             </label>
                         </div>
                         <div class="flex justify-end pt-4 gap-3">
@@ -485,6 +499,7 @@
                     <h3 class="text-xl font-semibold text-gray-800 mb-2">¡Operación Exitosa!</h3>
                     <p class="text-gray-600 mb-6" id="successMessage">Se notificó a: gerencia@aconic.com,<br>asuntos.juridicos@aconic.com,<br>coordinacion@aconic.com.</p>
                     <button id="startNewBtn" class="btn-primary text-white px-6 py-3 rounded-md font-medium">Empezar de Nuevo</button>
+		    <button id="reviewPreviousBtn" class="mt-3 btn-secondary text-white px-6 py-3 rounded-md font-medium">Revisar Examen Previo</button>
                 </div>
             </div>
         </div>
@@ -612,6 +627,13 @@
             document.getElementById('closePreviewModal').addEventListener('click', closePreviewModal);
             document.getElementById('confirmBtn').addEventListener('click', handleConfirm);
             document.getElementById('startNewBtn').addEventListener('click', startNewExam);
+	    document.getElementById('reviewPreviousBtn').addEventListener('click', function () {
+    		successModal.classList.add('hidden');
+    		document.body.style.overflow = ''; // Restaurar scroll
+
+    		productList.classList.remove('hidden');
+    		productList.classList.add('fade-in');
+	    });
             document.getElementById('downloadTxt').addEventListener('click', downloadTxt);
             document.getElementById('downloadExcel').addEventListener('click', downloadExcel);
             document.getElementById('closeDetailModal').addEventListener('click', closeDetailModal);
@@ -684,15 +706,17 @@
                     weight: document.getElementById('weight').value || 'N/A',
                     brand: document.getElementById('brand').value || 'N/A',
                     model: document.getElementById('model').value || 'N/A',
-                    manufacturer: document.getElementById('manufacturer').value || 'N/A',
+                    unitMeasure: document.getElementById('unitMeasure').value || 'N/A',
                     serial: document.getElementById('serial').value || 'N/A',
                     origin: document.getElementById('origin').value || 'N/A',
-                    unitMeasure: document.getElementById('unitMeasure').value || 'N/A',
-                    quantityUnits: document.getElementById('quantityUnits').value || '1',
+                    numberPackages: document.getElementById('numberPackages').value || 'N/A',
                     quantityPackages: document.getElementById('quantityPackages').value || '1',
+		    quantityUnits: document.getElementById('quantityUnits').value || '1',
                     observation: document.getElementById('observation').value || 'N/A',
                     isConform: document.getElementById('isConform').checked,
-                    isExcess: document.getElementById('isExcess').checked
+                    isExcess: document.getElementById('isExcess').checked,
+                    isMissing: document.getElementById('isMissing').checked,
+                    isFault: document.getElementById('isFault').checked
                 };
 
                 if (state.currentProductIndex !== null) {
@@ -725,6 +749,10 @@
                         row.classList.add('bg-red-50');
                     } else if (product.isConform) {
                         row.classList.add('bg-green-50');
+                    } else if (product.isMissing) {
+                        row.classList.add('bg-yellow-50');
+                    } else if (product.isFault) {
+                        row.classList.add('bg-gray-50');
                     }
 
                     row.innerHTML = `
@@ -735,6 +763,8 @@
                         <td class="px-4 py-3 text-sm text-gray-500">
                             ${product.isConform ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Conforme</span>' : ''}
                             ${product.isExcess ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Excedente</span>' : ''}
+                            ${product.isMissing ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Faltante</span>' : ''}
+                            ${product.isFault ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Avería</span>' : ''}
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
                             <div class="flex flex-wrap gap-2">
@@ -799,7 +829,7 @@
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500">Fabricante</p>
-                            <p class="text-base">${product.manufacturer}</p>
+                            <p class="text-base">${product.unitMeasure}</p>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500">Serie</p>
@@ -810,16 +840,20 @@
                             <p class="text-base">${product.origin}</p>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Unidad de Medida</p>
-                            <p class="text-base">${product.unitMeasure}</p>
+                            <p class="text-sm font-medium text-gray-500">Numeración de Bultos</p>
+                            <p class="text-base">${product.numberPackages}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Cantidad de Bultos</p>
+                            <p class="text-base">${product.quantityPackages}</p>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500">Cantidad de Unidades</p>
                             <p class="text-base">${product.quantityUnits}</p>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Cantidad de Bultos</p>
-                            <p class="text-base">${product.quantityPackages}</p>
+                            <p class="text-sm font-medium text-gray-500">Estado de Mercancía</p>
+                            <p class="text-base">${product.packagingCondition }</p>
                         </div>
                         <div class="col-span-1 sm:col-span-2">
                             <p class="text-sm font-medium text-gray-500">Observación</p>
@@ -830,7 +864,9 @@
                             <p class="text-base">
                                 ${product.isConform ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Conforme a factura</span>' : ''}
                                 ${product.isExcess ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Se encontró excedente</span>' : ''}
-                                ${!product.isConform && !product.isExcess ? 'Sin estado específico' : ''}
+                                ${product.isMissing ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Se encontró faltante</span>' : ''}
+                                ${product.isFault ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gary-800">Se encontró avería</span>' : ''}
+                                ${!product.isConform && !product.isExcess && !product.isMissing && !product.isFault ? 'Sin estado específico' : ''}
                             </p>
                         </div>
                     </div>
@@ -861,15 +897,17 @@
                 document.getElementById('weight').value = product.weight !== 'N/A' ? product.weight : '';
                 document.getElementById('brand').value = product.brand !== 'N/A' ? product.brand : '';
                 document.getElementById('model').value = product.model !== 'N/A' ? product.model : '';
-                document.getElementById('manufacturer').value = product.manufacturer !== 'N/A' ? product.manufacturer : '';
+                document.getElementById('unitMeasure').value = product.unitMeasure !== 'N/A' ? product.unitMeasure : '';
                 document.getElementById('serial').value = product.serial !== 'N/A' ? product.serial : '';
                 document.getElementById('origin').value = product.origin !== 'N/A' ? product.origin : '';
-                document.getElementById('unitMeasure').value = product.unitMeasure !== 'N/A' ? product.unitMeasure : '';
-                document.getElementById('quantityUnits').value = product.quantityUnits !== '1' ? product.quantityUnits : '';
+                document.getElementById('numberPackages').value = product.numberPackages !== 'N/A' ? product.numberPackages : '';
                 document.getElementById('quantityPackages').value = product.quantityPackages !== '1' ? product.quantityPackages : '';
+		document.getElementById('quantityUnits').value = product.quantityUnits !== '1' ? product.quantityUnits : '';
                 document.getElementById('observation').value = product.observation !== 'N/A' ? product.observation : '';
                 document.getElementById('isConform').checked = product.isConform;
                 document.getElementById('isExcess').checked = product.isExcess;
+                document.getElementById('isMissing').checked = product.isMissing;
+                document.getElementById('isFault').checked = product.isFault;
                 
                 // Open the modal
                 addProductModal.classList.remove('hidden');
@@ -909,6 +947,10 @@
                         row.classList.add('bg-red-50');
                     } else if (product.isConform) {
                         row.classList.add('bg-green-50');
+                    } else if (product.isMissing) {
+                        row.classList.add('bg-yellow-50');
+                    } else if (product.isFault) {
+                        row.classList.add('bg-gray-50');
                     }
 
                     row.innerHTML = `
@@ -919,6 +961,8 @@
                         <td class="px-4 py-3 text-sm text-gray-500">
                             ${product.isConform ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Conforme</span>' : ''}
                             ${product.isExcess ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Excedente</span>' : ''}
+                            ${product.isMissing ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Faltante</span>' : ''}
+                            ${product.isFault ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Avería</span>' : ''}
                         </td>
                     `;
 
@@ -974,7 +1018,7 @@
             }
 
             function downloadTxt() {
-                let content = `INFORME DE ANÁLISIS DE PRODUCTOS - CustomsEX-p\n`;
+                let content = `EXAMEN PREVIO AGENCIA ACONIC - CustomsEX-p\n`;
                 content += `===========================================\n\n`;
                 content += `INFORMACIÓN GENERAL:\n`;
                 content += `NE: ${state.examInfo.ne}\n`;
@@ -986,18 +1030,19 @@
                 state.products.forEach((product, index) => {
                     content += `\n--- Producto ${index + 1} ---\n`;
                     content += `Número de Item: ${product.itemNumber}\n`;
+                    content += `Numeración de Bultos: ${product.numberPackages}\n`;
+                    content += `Cantidad de Bultos: ${product.quantityPackages}\n`;
+		    content += `Cantidad de Unidades: ${product.quantityUnits}\n`;
                     content += `Descripción: ${product.description}\n`;
-                    content += `Peso: ${product.weight}\n`;
                     content += `Marca: ${product.brand}\n`;
                     content += `Modelo: ${product.model}\n`;
-                    content += `Fabricante: ${product.manufacturer}\n`;
                     content += `Serie: ${product.serial}\n`;
                     content += `Origen: ${product.origin}\n`;
-                    content += `Unidad de Medida: ${product.unitMeasure}\n`;
-                    content += `Cantidad de Unidades: ${product.quantityUnits}\n`;
-                    content += `Cantidad de Bultos: ${product.quantityPackages}\n`;
+                    content += `Estado de Mercancía: ${product.packagingCondition}\n`;                    
+		    content += `Unidad de Medida: ${product.unitMeasure}\n`;
+                    content += `Peso: ${product.weight}\n`;
                     content += `Observación: ${product.observation}\n`;
-                    content += `Estado: ${product.isConform ? 'Conforme a factura' : ''}${product.isExcess ? ' Se encontró excedente' : ''}${!product.isConform && !product.isExcess ? 'Sin estado específico' : ''}\n`;
+                    content += `Estado: ${product.isConform ? 'Conforme a factura' : ''}${product.isExcess ? ' Se encontró excedente' : ''}${product.isMissing ? ' Se encontró faltante' : ''}${product.isFault ? ' Se encontró avería' : ''}${!product.isConform && !product.isExcess && !product.isMissing && !product.isFault ? 'Sin estado específico' : ''}\n`;
                 });
 
                 const blob = new Blob([content], { type: 'text/plain' });
@@ -1018,11 +1063,11 @@
                 
                 // Prepare data for Excel
                 const excelData = [
-                    ['INFORME DE ANÁLISIS DE PRODUCTOS - CustomsEX-p'],
+                    ['EXAMEN PREVIO AGENCIA ACONIC - CustomsEX-p'],
                     [],
                     ['INFORMACIÓN GENERAL:'],
                     [],
-                    [`Fecha y hora del documento: ${fechaHora}`], // Fecha y hora agregada aquí
+                    [`Fecha y hora: ${fechaHora}`], // Fecha y hora agregada aquí
                     ['NE:', state.examInfo.ne],
                     ['Referencia:', state.examInfo.reference],
                     ['Gestor:', state.examInfo.manager],
@@ -1031,16 +1076,17 @@
                     ['PRODUCTOS:'],
                     [
                         'Número de Item',
+			'Numeración de Bultos',
+			'Cantidad de Bultos',
+                        'Cantidad de Unidades',
                         'Descripción',
-                        'Peso',
                         'Marca',
                         'Modelo',
-                        'Fabricante',
-                        'Serie',
-                        'Origen',
+			'Origen',
+			'Estado de Mercancía',
+			'Peso',
                         'Unidad de Medida',
-                        'Cantidad de Unidades',
-                        'Cantidad de Bultos',
+                        'Serie',
                         'Observación',
                         'Estado'
                     ]
@@ -1049,21 +1095,24 @@
                 state.products.forEach(product => {
                     let status = '';
                     if (product.isConform) status += 'Conforme a factura';
-                    if (product.isExcess) status += (status ? ' ' : '') + 'Se encontró excedente';
-                    if (!product.isConform && !product.isExcess) status = 'Sin estado específico';
+                    if (product.isExcess) status += 'Se encontró excedente';
+                    if (product.isMissing) status += 'Se encontró faltante';
+                    if (product.isFault) status += 'Se encontró avería';
+                    if (!product.isConform && !product.isExcess && !product.isMissing && !product.isFault) status = 'Sin estado específico';
 
                     excelData.push([
                         product.itemNumber,
+                        product.numberPackages,
+                        product.quantityPackages,
+                        product.quantityUnits,
                         product.description,
-                        product.weight,
                         product.brand,
                         product.model,
-                        product.manufacturer,
-                        product.serial,
                         product.origin,
+			product.packagingCondition,
+                        product.weight,
                         product.unitMeasure,
-                        product.quantityUnits,
-                        product.quantityPackages,
+                        product.serial,
                         product.observation,
                         status
                     ]);
@@ -1074,7 +1123,7 @@
                 const ws = XLSX.utils.aoa_to_sheet(excelData);
 
                 // Add worksheet to workbook
-                XLSX.utils.book_append_sheet(wb, ws, 'Análisis de Productos');
+                XLSX.utils.book_append_sheet(wb, ws, `Examen Previo ${state.examInfo.ne}`);
 
                 // Generate Excel file and trigger download
                 XLSX.writeFile(wb, `CustomsEX-p_${state.examInfo.ne}_${new Date().toISOString().split('T')[0]}.xlsx`);
