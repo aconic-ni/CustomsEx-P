@@ -1012,11 +1012,17 @@
             }
 
             function downloadExcel() {
+                // Obtener la fecha y hora actual
+                const now = new Date();
+                const fechaHora = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+                
                 // Prepare data for Excel
                 const excelData = [
                     ['INFORME DE ANÁLISIS DE PRODUCTOS - CustomsEX-p'],
                     [],
                     ['INFORMACIÓN GENERAL:'],
+                    [],
+                    [`Fecha y hora del documento: ${fechaHora}`], // Fecha y hora agregada aquí
                     ['NE:', state.examInfo.ne],
                     ['Referencia:', state.examInfo.reference],
                     ['Gestor:', state.examInfo.manager],
