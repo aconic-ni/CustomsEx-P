@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeApp to CustomsEX-p</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .grid-background {
+            background-size: 20px 20px;
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+        }
+        
+        .custom-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        .word-box {
+            transition: all 0.3s ease;
+        }
+        
+        .word-box:focus-within {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .copy-tooltip {
+            visibility: hidden;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+        }
+        
+        .copy-container:hover .copy-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .magnifier-icon {
+            filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.2));
+        }
+    </style>
+</head>
+<body class="bg-blue-600 grid-background min-h-screen flex items-center justify-center font-sans">
+    <div class="bg-white bg-opacity-90 rounded-xl p-8 w-full max-w-md custom-shadow">
+        <div class="flex flex-col items-center mb-4">
+            <svg class="magnifier-icon w-12 h-12 text-blue-600 mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <path d="M8 11h6" stroke-width="1.5"></path>
+                <path d="M11 8v6" stroke-width="1.5"></path>
+            </svg>
+            <h1 class="text-2xl font-bold text-center text-blue-800">SafeApp to CustomsEX-p</h1>
+        </div>
+        
+        <div class="mb-6">
+            <p class="text-sm text-gray-600 mb-2 text-center">Ingresa 6 palabras para obtener 6 dígitos</p>
+            
+            <div class="word-box bg-blue-50 rounded-lg p-4">
+                <textarea id="wordsInput" class="w-full bg-transparent border border-blue-300 focus:outline-none focus:border-blue-600 px-3 py-2 rounded-lg resize-none" rows="4" placeholder="Ingresa el texto separado por espacios"></textarea>
+            </div>
+        </div>
+        
+        <div class="flex justify-center mb-6">
+            <button id="translateBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                Traducir
+            </button>
+        </div>
+        
+        <div class="bg-blue-100 rounded-lg p-4 text-center relative">
+            <h2 class="text-lg font-semibold text-blue-800 mb-2">Resultado</h2>
+            <div class="copy-container relative inline-block">
+                <div id="result" class="text-3xl font-bold tracking-widest text-blue-900 cursor-pointer" onclick="copyResult()">------</div>
+                <span class="copy-tooltip" id="copyTooltip">Click para copiar</span>
+            </div>
+            <div class="text-xs text-blue-600 mt-2" id="copyMessage" style="height: 16px;"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const translateBtn = document.getElementById('translateBtn');
+            const resultDisplay = document.getElementById('result');
+            const wordsInput = document.getElementById('wordsInput');
+            const copyMessage = document.getElementById('copyMessage');
+            
+            const wordToNumberMap = {
+                'NADZERU': '0',
+                'UNANE': '1',
+                'BISSTO': '2',
+                'TRISTREE': '3',
+                'PANTOTRE': '4',
+                'PANTAFIVE': '5',
+                'SOXISIX': '6',
+                'SETTESEVEN': '7',
+                'OKTOET': '8',
+                'NOVANINE': '9'
+            };
+            
+            translateBtn.addEventListener('click', function() {
+                const inputText = wordsInput.value.trim();
+                // Dividir por espacios, comas o saltos de línea
+                const words = inputText.split(/[\s,\n]+/).filter(word => word.length > 0);
+                
+                if (words.length === 0) {
+                    resultDisplay.textContent = "------";
+                    copyMessage.textContent = "Ingresa palabras para traducir";
+                    copyMessage.className = "text-xs text-yellow-600 mt-2";
+                    return;
+                }
+                
+                let resultNumber = '';
+                let invalidWords = [];
+                
+                words.forEach(word => {
+                    const cleanWord = word.trim().toUpperCase();
+                    
+                    if (wordToNumberMap[cleanWord] !== undefined) {
+                        resultNumber += wordToNumberMap[cleanWord];
+                    } else {
+                        invalidWords.push(cleanWord);
+                    }
+                });
+                
+                if (invalidWords.length > 0) {
+                    copyMessage.textContent = `Palabras no reconocidas: ${invalidWords.join(', ')}`;
+                    copyMessage.className = "text-xs text-red-600 mt-2";
+                } else {
+                    copyMessage.textContent = "Traducción exitosa";
+                    copyMessage.className = "text-xs text-green-600 mt-2";
+                }
+                
+                if (resultNumber) {
+                    resultDisplay.textContent = resultNumber;
+                    resultDisplay.classList.add('pulse-animation');
+                    setTimeout(() => {
+                        resultDisplay.classList.remove('pulse-animation');
+                    }, 2000);
+                } else {
+                    resultDisplay.textContent = "------";
+                }
+            });
+        });
+        
+        function copyResult() {
+            const resultText = document.getElementById('result').textContent;
+            const copyMessage = document.getElementById('copyMessage');
+            
+            if (resultText === "------") {
+                copyMessage.textContent = "No hay resultado para copiar";
+                copyMessage.className = "text-xs text-yellow-600 mt-2";
+                return;
+            }
+            
+            navigator.clipboard.writeText(resultText).then(function() {
+                copyMessage.textContent = "¡Copiado al portapapeles!";
+                copyMessage.className = "text-xs text-green-600 mt-2";
+                
+                setTimeout(() => {
+                    copyMessage.textContent = "";
+                }, 2000);
+            }, function() {
+                copyMessage.textContent = "Error al copiar";
+                copyMessage.className = "text-xs text-red-600 mt-2";
+            });
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93d40288d2f398a8',t:'MTc0NjgyMzIwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body></html>
