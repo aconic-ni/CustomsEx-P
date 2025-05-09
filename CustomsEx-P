@@ -1,0 +1,1078 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CustomsEX-p | Análisis de Productos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .modal {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .modal-enter {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .btn-primary {
+            background-color: #4361ee;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #3a56d4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        input, select, textarea {
+            font-size: 16px !important;
+            -webkit-appearance: none;
+            border-radius: 0.375rem;
+        }
+        textarea {
+            min-height: 80px;
+        }
+        /* Fix for iOS input zooming */
+        @supports (-webkit-touch-callout: none) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+        /* Improve touch targets */
+        button, .btn, input[type="checkbox"] {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        /* Improve table scrolling on mobile */
+        .table-container {
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Fix for mobile modals */
+        .mobile-modal {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        /* Grid background */
+        .grid-bg {
+            background-color: #1a365d;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        /* Code input styling */
+        .code-input {
+            letter-spacing: 0.5em;
+            text-align: center;
+        }
+        /* Glass effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* Logo pulse animation */
+        .logo-pulse {
+            animation: pulse 2s infinite;
+            cursor: pointer;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 0 rgba(67, 97, 238, 0.7));
+            }
+            50% {
+                transform: scale(1.05);
+                filter: drop-shadow(0 0 10px rgba(67, 97, 238, 0.7));
+            }
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 0 rgba(67, 97, 238, 0.7));
+            }
+        }
+        /* Access code display */
+        .access-code-display {
+            font-size: 10px;
+            color: #888888;
+            margin-top: 5px;
+        }
+        /* Custom checkbox styling */
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .custom-checkbox input {
+            opacity: 0;
+            position: absolute;
+            cursor: pointer;
+        }
+        .checkmark {
+            height: 24px;
+            width: 24px;
+            background-color: #fff;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-checkbox input:checked ~ .checkmark {
+            background-color: #4361ee;
+            border-color: #4361ee;
+        }
+        .checkmark:after {
+            content: "";
+            display: none;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        .custom-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen grid-bg">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="flex flex-col items-center">
+            <div id="appLogo" class="logo-pulse mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">CustomsEX-p</h1>
+            <p class="text-blue-200">Sistema de Análisis de Productos</p>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="modal modal-enter glass-effect rounded-lg w-full max-w-md mx-4 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-white">Acceso al Sistema</h2>
+                <button id="closeLoginModal" class="text-white hover:text-gray-300 p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="accessCode" class="block text-sm font-medium text-white mb-1">Código de Acceso</label>
+                    <input type="text" id="accessCode" name="accessCode" maxlength="6" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 code-input"
+                           autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                </div>
+                
+                <div class="flex justify-center">
+                    <button type="submit" class="btn-primary text-white px-8 py-3 rounded-md font-medium w-full">
+                        Ingresar
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-4 text-center">
+                <p class="access-code-display" id="displayAccessCodeWords"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-6 max-w-6xl hidden" id="appContainer">
+        <!-- Header -->
+        <header class="mb-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <h1 class="text-2xl md:text-3xl font-bold ml-2 text-white">CustomsEX-p</h1>
+                </div>
+                <div class="text-sm text-gray-300">Sistema de Análisis de Productos</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Initial Form (First Screen) -->
+            <div id="initialForm" class="bg-white rounded-lg p-5 md:p-8 shadow-lg custom-shadow">
+                <h2 class="text-xl md:text-2xl font-semibold mb-6 text-gray-800">Nuevo Examen</h2>
+                <form id="examForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="ne" class="block text-sm font-medium text-gray-700 mb-1">NE (Número con letras) *</label>
+                            <input type="text" id="ne" name="ne" required class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="reference" class="block text-sm font-medium text-gray-700 mb-1">Referencia (Contenedor, Guía, BL)</label>
+                            <input type="text" id="reference" name="reference" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="manager" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Gestor *</label>
+                            <input type="text" id="manager" name="manager" required class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Ubicación de la Mercancía *</label>
+                            <input type="text" id="location" name="location" required class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" class="btn-primary text-white px-6 py-3 rounded-md font-medium">Continuar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Product List (Second Screen) -->
+            <div id="productList" class="bg-white rounded-lg p-5 md:p-8 shadow-lg custom-shadow hidden">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                    <h2 class="text-xl md:text-2xl font-semibold text-gray-800">Lista de Productos</h2>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button id="addProductBtn" class="btn-primary text-white px-4 py-3 rounded-md font-medium flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                            Añadir Nuevo
+                        </button>
+                        <button id="finishBtn" class="btn-secondary text-white px-4 py-3 rounded-md font-medium flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            Finalizar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                    <div class="flex flex-wrap gap-3">
+                        <div class="text-sm"><span class="font-semibold">NE:</span> <span id="summaryNE"></span></div>
+                        <div class="text-sm"><span class="font-semibold">Referencia:</span> <span id="summaryReference"></span></div>
+                        <div class="text-sm"><span class="font-semibold">Gestor:</span> <span id="summaryManager"></span></div>
+                        <div class="text-sm"><span class="font-semibold">Ubicación:</span> <span id="summaryLocation"></span></div>
+                    </div>
+                    <div class="mt-3">
+                        <button id="backToFormBtn" class="text-blue-600 hover:text-blue-800 flex items-center text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Regresar para modificar datos
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto table-container">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Products will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="noProductsMessage" class="text-center py-8 text-gray-500">
+                    No hay productos añadidos. Haga clic en "Añadir Nuevo" para comenzar.
+                </div>
+            </div>
+        </main>
+
+        <!-- Add Product Modal -->
+        <div id="addProductModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="modal modal-enter bg-white rounded-lg w-full max-w-3xl mx-4 mobile-modal">
+                <div class="p-5 md:p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg md:text-xl font-semibold text-gray-800">Añadir Producto</h3>
+                        <button id="closeAddProductModal" class="text-gray-500 hover:text-gray-700 p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="productForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="itemNumber" class="block text-sm font-medium text-gray-700 mb-1">Número de Item</label>
+                                <input type="text" id="itemNumber" name="itemNumber" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="weight" class="block text-sm font-medium text-gray-700 mb-1">Peso</label>
+                                <input type="text" id="weight" name="weight" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                                <textarea id="description" name="description" rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                            <div>
+                                <label for="brand" class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+                                <input type="text" id="brand" name="brand" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="model" class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
+                                <input type="text" id="model" name="model" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="manufacturer" class="block text-sm font-medium text-gray-700 mb-1">Fabricante</label>
+                                <input type="text" id="manufacturer" name="manufacturer" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="serial" class="block text-sm font-medium text-gray-700 mb-1">Serie</label>
+                                <input type="text" id="serial" name="serial" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="origin" class="block text-sm font-medium text-gray-700 mb-1">Origen</label>
+                                <input type="text" id="origin" name="origin" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="unitMeasure" class="block text-sm font-medium text-gray-700 mb-1">Unidad de Medida</label>
+                                <input type="text" id="unitMeasure" name="unitMeasure" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="quantityUnits" class="block text-sm font-medium text-gray-700 mb-1">Cantidad de Unidades</label>
+                                <input type="number" id="quantityUnits" name="quantityUnits" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="quantityPackages" class="block text-sm font-medium text-gray-700 mb-1">Cantidad de Bultos</label>
+                                <input type="number" id="quantityPackages" name="quantityPackages" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="observation" class="block text-sm font-medium text-gray-700 mb-1">Observación</label>
+                                <textarea id="observation" name="observation" rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-4">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="isConform" name="isConform">
+                                <span class="checkmark"></span>
+                                <span class="text-sm text-gray-700">Conforme a factura</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="isExcess" name="isExcess">
+                                <span class="checkmark"></span>
+                                <span class="text-sm text-gray-700">Se encontró excedente</span>
+                            </label>
+                        </div>
+                        <div class="flex justify-end pt-4 gap-3">
+                            <button type="button" id="cancelAddProduct" class="px-4 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancelar</button>
+                            <button type="submit" class="btn-primary text-white px-6 py-3 rounded-md font-medium">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Modal -->
+        <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="modal modal-enter bg-white rounded-lg w-full max-w-4xl mx-4 mobile-modal">
+                <div class="p-5 md:p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg md:text-xl font-semibold text-gray-800">Vista Previa</h3>
+                        <button id="closePreviewModal" class="text-gray-500 hover:text-gray-700 p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-base md:text-lg font-medium mb-2">Información General</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-gray-50 p-3 rounded-md">
+                            <div><span class="font-semibold">NE:</span> <span id="previewNE"></span></div>
+                            <div><span class="font-semibold">Referencia:</span> <span id="previewReference"></span></div>
+                            <div><span class="font-semibold">Gestor:</span> <span id="previewManager"></span></div>
+                            <div><span class="font-semibold">Ubicación:</span> <span id="previewLocation"></span></div>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-base md:text-lg font-medium mb-2">Productos</h4>
+                        <div class="overflow-x-auto table-container">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca/Modelo</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Preview products will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-between gap-4">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button id="downloadTxt" class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Descargar TXT
+                            </button>
+                            <button id="downloadExcel" class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Descargar Excel
+                            </button>
+                        </div>
+                        <button id="confirmBtn" class="btn-primary text-white px-6 py-3 rounded-md font-medium">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="modal modal-enter bg-white rounded-lg w-full max-w-md mx-4">
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">¡Operación Exitosa!</h3>
+                    <p class="text-gray-600 mb-6" id="successMessage">Se notificó a: gerencia@aconic.com, asuntos.juridicos@aconic.com, coordinacion@aconic.com.</p>
+                    <button id="startNewBtn" class="btn-primary text-white px-6 py-3 rounded-md font-medium">Empezar de Nuevo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Detail Modal -->
+        <div id="productDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="modal modal-enter bg-white rounded-lg w-full max-w-2xl mx-4 mobile-modal">
+                <div class="p-5 md:p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg md:text-xl font-semibold text-gray-800">Detalles del Producto</h3>
+                        <button id="closeDetailModal" class="text-gray-500 hover:text-gray-700 p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="productDetailContent" class="space-y-4">
+                        <!-- Product details will be added here -->
+                    </div>
+                    <div class="flex justify-end mt-6">
+                        <button id="closeDetailBtn" class="px-4 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // State management
+            const state = {
+                examInfo: {},
+                products: [],
+                currentProductIndex: null,
+                accessCode: generateRandomCode()
+            };
+
+            // Number to word mapping
+            const numberToWord = {
+                '0': 'NADZERU',
+                '1': 'UNANE',
+                '2': 'BISSTO',
+                '3': 'TRISTREE',
+                '4': 'PANTOTRE',
+                '5': 'PANTAFIVE',
+                '6': 'SOXISIX',
+                '7': 'SETTESEVEN',
+                '8': 'OKTOET',
+                '9': 'NOVANINE'
+            };
+
+            // Generate random 6-digit code
+            function generateRandomCode() {
+                return Math.floor(100000 + Math.random() * 900000).toString();
+            }
+
+            // Convert number to word representation
+            function convertCodeToWords(code) {
+                let words = [];
+                for (let digit of code) {
+                    words.push(numberToWord[digit]);
+                }
+                return words.join(' ');
+            }
+
+            // DOM Elements
+            const initialForm = document.getElementById('initialForm');
+            const productList = document.getElementById('productList');
+            const examForm = document.getElementById('examForm');
+            const productForm = document.getElementById('productForm');
+            const addProductModal = document.getElementById('addProductModal');
+            const previewModal = document.getElementById('previewModal');
+            const successModal = document.getElementById('successModal');
+            const productDetailModal = document.getElementById('productDetailModal');
+            const productTableBody = document.getElementById('productTableBody');
+            const noProductsMessage = document.getElementById('noProductsMessage');
+            const loginModal = document.getElementById('loginModal');
+            const appContainer = document.getElementById('appContainer');
+            const appLogo = document.getElementById('appLogo');
+            const loginForm = document.getElementById('loginForm');
+            const closeLoginModal = document.getElementById('closeLoginModal');
+
+            // Initialize login screen
+            appLogo.addEventListener('click', function() {
+                loginModal.classList.remove('hidden');
+                setTimeout(() => {
+                    loginModal.querySelector('.modal').classList.remove('modal-enter');
+                    // Display the access code words
+                    document.getElementById('displayAccessCodeWords').textContent = convertCodeToWords(state.accessCode);
+                }, 10);
+            });
+
+            // Close login modal
+            closeLoginModal.addEventListener('click', function() {
+                loginModal.querySelector('.modal').classList.add('modal-enter');
+                setTimeout(() => {
+                    loginModal.classList.add('hidden');
+                }, 300);
+            });
+
+            // Show login modal automatically after a short delay
+            setTimeout(() => {
+                appLogo.click();
+            }, 1000);
+
+            // Handle login form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const enteredCode = document.getElementById('accessCode').value;
+                if (enteredCode === state.accessCode) {
+                    // Hide login screen and modal
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    loginModal.classList.add('hidden');
+                    
+                    // Show app container
+                    appContainer.classList.remove('hidden');
+                    appContainer.classList.add('fade-in');
+                } else {
+                    alert('Código incorrecto. Inténtelo de nuevo.');
+                }
+            });
+
+            // Event Listeners
+            examForm.addEventListener('submit', handleExamFormSubmit);
+            document.getElementById('addProductBtn').addEventListener('click', openAddProductModal);
+            document.getElementById('closeAddProductModal').addEventListener('click', closeAddProductModal);
+            document.getElementById('cancelAddProduct').addEventListener('click', closeAddProductModal);
+            productForm.addEventListener('submit', handleProductFormSubmit);
+            document.getElementById('finishBtn').addEventListener('click', openPreviewModal);
+            document.getElementById('closePreviewModal').addEventListener('click', closePreviewModal);
+            document.getElementById('confirmBtn').addEventListener('click', handleConfirm);
+            document.getElementById('startNewBtn').addEventListener('click', startNewExam);
+            document.getElementById('downloadTxt').addEventListener('click', downloadTxt);
+            document.getElementById('downloadExcel').addEventListener('click', downloadExcel);
+            document.getElementById('closeDetailModal').addEventListener('click', closeDetailModal);
+            document.getElementById('closeDetailBtn').addEventListener('click', closeDetailModal);
+            document.getElementById('backToFormBtn').addEventListener('click', function() {
+                productList.classList.add('hidden');
+                initialForm.classList.remove('hidden');
+            });
+
+            // Fix for iOS input focus issues
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    // Add a small delay to ensure the viewport adjusts properly
+                    setTimeout(() => {
+                        const scrollY = window.scrollY;
+                        window.scrollTo(0, scrollY);
+                    }, 100);
+                });
+            });
+
+            // Functions
+            function handleExamFormSubmit(e) {
+                e.preventDefault();
+                
+                // Get form data
+                state.examInfo = {
+                    ne: document.getElementById('ne').value,
+                    reference: document.getElementById('reference').value || 'N/A',
+                    manager: document.getElementById('manager').value,
+                    location: document.getElementById('location').value
+                };
+
+                // Update summary in product list screen
+                document.getElementById('summaryNE').textContent = state.examInfo.ne;
+                document.getElementById('summaryReference').textContent = state.examInfo.reference;
+                document.getElementById('summaryManager').textContent = state.examInfo.manager;
+                document.getElementById('summaryLocation').textContent = state.examInfo.location;
+
+                // Switch to product list screen
+                initialForm.classList.add('hidden');
+                productList.classList.remove('hidden');
+                productList.classList.add('fade-in');
+            }
+
+            function openAddProductModal() {
+                state.currentProductIndex = null;
+                productForm.reset();
+                addProductModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                setTimeout(() => {
+                    addProductModal.querySelector('.modal').classList.remove('modal-enter');
+                }, 10);
+            }
+
+            function closeAddProductModal() {
+                addProductModal.querySelector('.modal').classList.add('modal-enter');
+                setTimeout(() => {
+                    addProductModal.classList.add('hidden');
+                    document.body.style.overflow = ''; // Restore scrolling
+                }, 300);
+            }
+
+            function handleProductFormSubmit(e) {
+                e.preventDefault();
+                
+                const product = {
+                    itemNumber: document.getElementById('itemNumber').value || 'N/A',
+                    description: document.getElementById('description').value || 'N/A',
+                    weight: document.getElementById('weight').value || 'N/A',
+                    brand: document.getElementById('brand').value || 'N/A',
+                    model: document.getElementById('model').value || 'N/A',
+                    manufacturer: document.getElementById('manufacturer').value || 'N/A',
+                    serial: document.getElementById('serial').value || 'N/A',
+                    origin: document.getElementById('origin').value || 'N/A',
+                    unitMeasure: document.getElementById('unitMeasure').value || 'N/A',
+                    quantityUnits: document.getElementById('quantityUnits').value || '1',
+                    quantityPackages: document.getElementById('quantityPackages').value || '1',
+                    observation: document.getElementById('observation').value || 'N/A',
+                    isConform: document.getElementById('isConform').checked,
+                    isExcess: document.getElementById('isExcess').checked
+                };
+
+                if (state.currentProductIndex !== null) {
+                    // Edit existing product
+                    state.products[state.currentProductIndex] = product;
+                } else {
+                    // Add new product
+                    state.products.push(product);
+                }
+
+                updateProductTable();
+                closeAddProductModal();
+            }
+
+            function updateProductTable() {
+                if (state.products.length === 0) {
+                    productTableBody.innerHTML = '';
+                    noProductsMessage.classList.remove('hidden');
+                    return;
+                }
+
+                noProductsMessage.classList.add('hidden');
+                productTableBody.innerHTML = '';
+
+                state.products.forEach((product, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Apply background color based on status
+                    if (product.isExcess) {
+                        row.classList.add('bg-red-50');
+                    } else if (product.isConform) {
+                        row.classList.add('bg-green-50');
+                    }
+
+                    row.innerHTML = `
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${product.itemNumber}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${product.description.substring(0, 30)}${product.description.length > 30 ? '...' : ''}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${product.brand}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${product.quantityUnits} unid. / ${product.quantityPackages} bultos</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">
+                            ${product.isConform ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Conforme</span>' : ''}
+                            ${product.isExcess ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Excedente</span>' : ''}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                            <div class="flex flex-wrap gap-2">
+                                <button class="text-blue-600 hover:text-blue-900 view-btn p-2" data-index="${index}">Ver</button>
+                                <button class="text-indigo-600 hover:text-indigo-900 edit-btn p-2" data-index="${index}">Editar</button>
+                                <button class="text-red-600 hover:text-red-900 delete-btn p-2" data-index="${index}">Eliminar</button>
+                            </div>
+                        </td>
+                    `;
+
+                    productTableBody.appendChild(row);
+                });
+
+                // Add event listeners to the buttons
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        viewProductDetails(index);
+                    });
+                });
+
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        editProduct(index);
+                    });
+                });
+
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        deleteProduct(index);
+                    });
+                });
+            }
+
+            function viewProductDetails(index) {
+                const product = state.products[index];
+                const detailContent = document.getElementById('productDetailContent');
+                
+                detailContent.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Número de Item</p>
+                            <p class="text-base">${product.itemNumber}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Peso</p>
+                            <p class="text-base">${product.weight}</p>
+                        </div>
+                        <div class="col-span-1 sm:col-span-2">
+                            <p class="text-sm font-medium text-gray-500">Descripción</p>
+                            <p class="text-base">${product.description}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Marca</p>
+                            <p class="text-base">${product.brand}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Modelo</p>
+                            <p class="text-base">${product.model}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Fabricante</p>
+                            <p class="text-base">${product.manufacturer}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Serie</p>
+                            <p class="text-base">${product.serial}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Origen</p>
+                            <p class="text-base">${product.origin}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Unidad de Medida</p>
+                            <p class="text-base">${product.unitMeasure}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Cantidad de Unidades</p>
+                            <p class="text-base">${product.quantityUnits}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Cantidad de Bultos</p>
+                            <p class="text-base">${product.quantityPackages}</p>
+                        </div>
+                        <div class="col-span-1 sm:col-span-2">
+                            <p class="text-sm font-medium text-gray-500">Observación</p>
+                            <p class="text-base">${product.observation}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Estado</p>
+                            <p class="text-base">
+                                ${product.isConform ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Conforme a factura</span>' : ''}
+                                ${product.isExcess ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Se encontró excedente</span>' : ''}
+                                ${!product.isConform && !product.isExcess ? 'Sin estado específico' : ''}
+                            </p>
+                        </div>
+                    </div>
+                `;
+                
+                productDetailModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                setTimeout(() => {
+                    productDetailModal.querySelector('.modal').classList.remove('modal-enter');
+                }, 10);
+            }
+
+            function closeDetailModal() {
+                productDetailModal.querySelector('.modal').classList.add('modal-enter');
+                setTimeout(() => {
+                    productDetailModal.classList.add('hidden');
+                    document.body.style.overflow = ''; // Restore scrolling
+                }, 300);
+            }
+
+            function editProduct(index) {
+                state.currentProductIndex = index;
+                const product = state.products[index];
+                
+                // Fill the form with product data
+                document.getElementById('itemNumber').value = product.itemNumber !== 'N/A' ? product.itemNumber : '';
+                document.getElementById('description').value = product.description !== 'N/A' ? product.description : '';
+                document.getElementById('weight').value = product.weight !== 'N/A' ? product.weight : '';
+                document.getElementById('brand').value = product.brand !== 'N/A' ? product.brand : '';
+                document.getElementById('model').value = product.model !== 'N/A' ? product.model : '';
+                document.getElementById('manufacturer').value = product.manufacturer !== 'N/A' ? product.manufacturer : '';
+                document.getElementById('serial').value = product.serial !== 'N/A' ? product.serial : '';
+                document.getElementById('origin').value = product.origin !== 'N/A' ? product.origin : '';
+                document.getElementById('unitMeasure').value = product.unitMeasure !== 'N/A' ? product.unitMeasure : '';
+                document.getElementById('quantityUnits').value = product.quantityUnits !== '1' ? product.quantityUnits : '';
+                document.getElementById('quantityPackages').value = product.quantityPackages !== '1' ? product.quantityPackages : '';
+                document.getElementById('observation').value = product.observation !== 'N/A' ? product.observation : '';
+                document.getElementById('isConform').checked = product.isConform;
+                document.getElementById('isExcess').checked = product.isExcess;
+                
+                // Open the modal
+                addProductModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                setTimeout(() => {
+                    addProductModal.querySelector('.modal').classList.remove('modal-enter');
+                }, 10);
+            }
+
+            function deleteProduct(index) {
+                if (confirm('¿Está seguro de que desea eliminar este producto?')) {
+                    state.products.splice(index, 1);
+                    updateProductTable();
+                }
+            }
+
+            function openPreviewModal() {
+                if (state.products.length === 0) {
+                    alert('Debe agregar al menos un producto antes de finalizar.');
+                    return;
+                }
+
+                // Fill preview modal with data
+                document.getElementById('previewNE').textContent = state.examInfo.ne;
+                document.getElementById('previewReference').textContent = state.examInfo.reference;
+                document.getElementById('previewManager').textContent = state.examInfo.manager;
+                document.getElementById('previewLocation').textContent = state.examInfo.location;
+
+                const previewTableBody = document.getElementById('previewTableBody');
+                previewTableBody.innerHTML = '';
+
+                state.products.forEach(product => {
+                    const row = document.createElement('tr');
+                    
+                    // Apply background color based on status
+                    if (product.isExcess) {
+                        row.classList.add('bg-red-50');
+                    } else if (product.isConform) {
+                        row.classList.add('bg-green-50');
+                    }
+
+                    row.innerHTML = `
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${product.itemNumber}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${product.description.substring(0, 30)}${product.description.length > 30 ? '...' : ''}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${product.brand} / ${product.model}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${product.quantityUnits} unid. / ${product.quantityPackages} bultos</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">
+                            ${product.isConform ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Conforme</span>' : ''}
+                            ${product.isExcess ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Excedente</span>' : ''}
+                        </td>
+                    `;
+
+                    previewTableBody.appendChild(row);
+                });
+
+                previewModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                setTimeout(() => {
+                    previewModal.querySelector('.modal').classList.remove('modal-enter');
+                }, 10);
+            }
+
+            function closePreviewModal() {
+                previewModal.querySelector('.modal').classList.add('modal-enter');
+                setTimeout(() => {
+                    previewModal.classList.add('hidden');
+                    document.body.style.overflow = ''; // Restore scrolling
+                }, 300);
+            }
+
+            function handleConfirm() {
+                closePreviewModal();
+                
+                // Update success message with manager name
+                document.getElementById('successMessage').textContent = `Se notificó a: gerencia@aconic.com, asuntos.juridicos@aconic.com, coordinacion@aconic.com. Gracias por tu desempeño ${state.examInfo.manager}.`;
+                
+                successModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                setTimeout(() => {
+                    successModal.querySelector('.modal').classList.remove('modal-enter');
+                }, 10);
+            }
+
+            function startNewExam() {
+                // Reset state
+                state.examInfo = {};
+                state.products = [];
+                state.currentProductIndex = null;
+
+                // Reset forms
+                examForm.reset();
+                productForm.reset();
+
+                // Hide modals
+                successModal.classList.add('hidden');
+                document.body.style.overflow = ''; // Restore scrolling
+                
+                // Show initial form
+                productList.classList.add('hidden');
+                initialForm.classList.remove('hidden');
+                initialForm.classList.add('fade-in');
+            }
+
+            function downloadTxt() {
+                let content = `INFORME DE ANÁLISIS DE PRODUCTOS - CustomsEX-p\n`;
+                content += `===========================================\n\n`;
+                content += `INFORMACIÓN GENERAL:\n`;
+                content += `NE: ${state.examInfo.ne}\n`;
+                content += `Referencia: ${state.examInfo.reference}\n`;
+                content += `Gestor: ${state.examInfo.manager}\n`;
+                content += `Ubicación: ${state.examInfo.location}\n\n`;
+                content += `PRODUCTOS:\n`;
+                
+                state.products.forEach((product, index) => {
+                    content += `\n--- Producto ${index + 1} ---\n`;
+                    content += `Número de Item: ${product.itemNumber}\n`;
+                    content += `Descripción: ${product.description}\n`;
+                    content += `Peso: ${product.weight}\n`;
+                    content += `Marca: ${product.brand}\n`;
+                    content += `Modelo: ${product.model}\n`;
+                    content += `Fabricante: ${product.manufacturer}\n`;
+                    content += `Serie: ${product.serial}\n`;
+                    content += `Origen: ${product.origin}\n`;
+                    content += `Unidad de Medida: ${product.unitMeasure}\n`;
+                    content += `Cantidad de Unidades: ${product.quantityUnits}\n`;
+                    content += `Cantidad de Bultos: ${product.quantityPackages}\n`;
+                    content += `Observación: ${product.observation}\n`;
+                    content += `Estado: ${product.isConform ? 'Conforme a factura' : ''}${product.isExcess ? ' Se encontró excedente' : ''}${!product.isConform && !product.isExcess ? 'Sin estado específico' : ''}\n`;
+                });
+
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `CustomsEX-p_${state.examInfo.ne}_${new Date().toISOString().split('T')[0]}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function downloadExcel() {
+                // Prepare data for Excel
+                const excelData = [
+                    ['INFORME DE ANÁLISIS DE PRODUCTOS - CustomsEX-p'],
+                    [],
+                    ['INFORMACIÓN GENERAL:'],
+                    ['NE:', state.examInfo.ne],
+                    ['Referencia:', state.examInfo.reference],
+                    ['Gestor:', state.examInfo.manager],
+                    ['Ubicación:', state.examInfo.location],
+                    [],
+                    ['PRODUCTOS:'],
+                    [
+                        'Número de Item',
+                        'Descripción',
+                        'Peso',
+                        'Marca',
+                        'Modelo',
+                        'Fabricante',
+                        'Serie',
+                        'Origen',
+                        'Unidad de Medida',
+                        'Cantidad de Unidades',
+                        'Cantidad de Bultos',
+                        'Observación',
+                        'Estado'
+                    ]
+                ];
+
+                state.products.forEach(product => {
+                    let status = '';
+                    if (product.isConform) status += 'Conforme a factura';
+                    if (product.isExcess) status += (status ? ' ' : '') + 'Se encontró excedente';
+                    if (!product.isConform && !product.isExcess) status = 'Sin estado específico';
+
+                    excelData.push([
+                        product.itemNumber,
+                        product.description,
+                        product.weight,
+                        product.brand,
+                        product.model,
+                        product.manufacturer,
+                        product.serial,
+                        product.origin,
+                        product.unitMeasure,
+                        product.quantityUnits,
+                        product.quantityPackages,
+                        product.observation,
+                        status
+                    ]);
+                });
+
+                // Create workbook and worksheet
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+                // Add worksheet to workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'Análisis de Productos');
+
+                // Generate Excel file and trigger download
+                XLSX.writeFile(wb, `CustomsEX-p_${state.examInfo.ne}_${new Date().toISOString().split('T')[0]}.xlsx`);
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93cea51f470102e0',t:'MTc0Njc2Njk1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body></html>
