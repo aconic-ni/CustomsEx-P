@@ -497,7 +497,19 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-800 mb-2">¡Operación Exitosa!</h3>
-                    <p class="text-gray-600 mb-6" id="successMessage">Se notificó a: gerencia@aconic.com,<br>asuntos.juridicos@aconic.com,<br>coordinacion@aconic.com.</p>
+<div class="mb-6">
+  <a
+    href="https://aconisani-my.sharepoint.com/:f:/g/personal/asuntos_juridicos_aconic_com_ni/Emrpj4Ss8bhDifpuYc8U_bwBj9r29FGcXxzfxu4PSh2tEQ?e=FhIPTt"
+    target="_blank"
+    class="text-blue-600 underline hover:text-blue-800"
+  >
+    Añadir imágenes del predio acá
+  </a>
+<p class="text-gray-600 mb-6" id="successMessage">
+  Se notificó a: gerencia@aconic.com,<br>
+  asuntos.juridicos@aconic.com,<br>
+  coordinacion@aconic.com.
+</p>
                     <button id="startNewBtn" class="btn-primary text-white px-6 py-3 rounded-md font-medium">Empezar de Nuevo</button>
 		    <button id="reviewPreviousBtn" class="mt-3 btn-secondary text-white px-6 py-3 rounded-md font-medium">Revisar Examen Previo</button>
                 </div>
@@ -1130,12 +1142,11 @@
                 XLSX.writeFile(wb, `CustomsEX-p_${state.examInfo.ne}_${new Date().toISOString().split('T')[0]}.xlsx`);
             }
         });
-		window.addEventListener('beforeunload', function (e) {
-    			const confirmationMessage = 'Esta acción podría borrar todos los cambios en el formulario. ¿Deseas continuar?';
-    			(e || window.event).returnValue = confirmationMessage; // Para navegadores antiguos
-    			return confirmationMessage; // Para navegadores modernos
-	});
-    </script>	    
+window.addEventListener('beforeunload', function (e) {
+    const confirmationMessage = 'Esta acción podría borrar todos los cambios en el formulario. ¿Deseas continuar?';
+    (e || window.event).returnValue = confirmationMessage; // Para navegadores antiguos
+    return confirmationMessage; // Para navegadores modernos
+});
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93cea51f470102e0',t:'MTc0Njc2Njk1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </body></html>
